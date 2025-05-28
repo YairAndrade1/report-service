@@ -1,55 +1,110 @@
 # Report Service
 
-A Spring Boot microservice that calls the **Exam Service** to fetch and aggregate exam anomalies over a given period, then exposes a single “report” endpoint.  
-Built with Java 17, Spring Boot 3.5.0 and WebFlux.
+This microservice generates reports of patients’ exam anomalies over a given period. It fulfills the ASR:
+
+> **“Como médico especialista quiero obtener, en menos de 2 s, el reporte de todos los pacientes que en el último mes presentaron síntomas, agrupados por tipo de examen con anomalías.”**
 
 ---
 
-## Table of Contents
+## 📦 Prerequisitos
 
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Configuration](#configuration)
-- [Build & Run](#build--run)
-- [Endpoints](#endpoints)
-- [Data Models](#data-models)
-- [Testing](#testing)
-- [Observability](#observability)
+- Java 17+
+- Maven
+- JMeter (>= 5.0) para las pruebas de carga
+- El **Exam Service** desplegado y accesible (por ejemplo en `http://<EXAM_VM_IP>:8080/examen`)
 
 ---
 
-## Features
+## 🚀 Despliegue
 
-- Fetches “recent anomalies” from Exam Service via reactive HTTP (WebClient)
-- Filters and groups anomalies by exam type
-- Returns a JSON report with counts and patient IDs
-- Enforces a 2 s timeout (ASR-compliant)
-- Exposes Actuator endpoints for health and metrics
+1. **Clona** este repositorio y compílalo:
+   ```bash
+   git clone https://github.com/tu‐usuario/report‐service.git
+   cd report‐service
+   mvn clean package -DskipTests
+````
+
+2. **Arranca** el servicio indicando el puerto y la URL del servicio de exámenes:
+
+   ```bash
+   java -jar target/report-service-0.0.1-SNAPSHOT.jar \
+     --server.port=8081 \
+     --exam.service.url=http://<EXAM_VM_IP>:8080/examen
+   ```
+3. Verifica que responde:
+
+   ```bash
+   curl -G http://localhost:8081/reports \
+        --data-urlencode "from=2025-01-01T00:00:00"
+   ```
 
 ---
 
-## Prerequisites
+## 🎯 Endpoint
 
-- Java 17 +
-- Maven 3.6 +
-- A running **Exam Service** instance reachable at HTTP
-- (Optional) Docker, if you wish to containerize
+`GET  /reports?from={ISO8601}`
+
+* **from**: fecha/hora de inicio (ISO 8601).
+* **Respuesta**:
+
+  ```json
+  {
+    "period": "{from}_to_{now}",
+    "groupBy": "examType",
+    "data": [
+      {
+        "examType": "EEG",
+        "count": 5,
+        "patientIds": [12, 34, 56]
+      },
+      …
+    ]
+  }
+  ```
 
 ---
 
-## Configuration
+## 🧪 Pruebas de carga con JMeter
 
-All configuration goes in `src/main/resources/application.properties` (or as environment variables).
+1. **Crea un Test Plan** en JMeter:
 
-```properties
-# Service name
-spring.application.name=report-service
+   * **Thread Group**
 
-# Base URL of your Exam Service (no trailing slash)
-exam.service.url=http://<EXAM_SERVICE_HOST>:8080/examen
+     * Number of Threads (users): 50
+     * Ramp-Up Period (s): 10
+     * Loop Count: 100 (or Duration: 60 s)
+2. **Configura HTTP Request Defaults** (opcional):
 
-# Server port (default 8080)
-server.port=8080
+   * Protocol: `http`
+   * Server Name or IP: `localhost`
+   * Port Number: `8081`
+3. **Añade un HTTP Request** dentro del Thread Group:
 
-# (Optional) Reactor thread-pool tuning, log levels, etc.
-logging.level.org.springframework.web=INFO
+   * Method: `GET`
+   * Path: `/reports`
+   * Parameters → Name: `from`, Value: `2025-01-01T00:00:00`
+4. **Añade un Listener**:
+
+   * Summary Report
+   * View Results in Table
+5. **Ejecuta** el plan y observa:
+
+   * **Average** < 2000 ms
+   * **Error %** = 0%
+6. (Opcional) **Linha de comando**:
+
+   ```bash
+   jmeter -n -t report_test_plan.jmx -l report_results.jtl
+   ```
+
+---
+
+## 👍 Validación
+
+Con `curl -w "\nTime: %{time_total}s\n"` obtuvimos:
+
+```
+Time: 1.04s
+```
+
+cumpliendo el ASR de latencia (< 2 s).
