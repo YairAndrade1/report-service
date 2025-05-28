@@ -20,14 +20,26 @@ public class ExamClient {
             .build();
     }
 
-   public Flux<ExamRecord> fetchExams(Duration since) {
-  return client.get()
-    .uri(uri -> uri
-      .path("/recent-anomalies")           // o "/recent-anomalies/grouped"
-      .queryParam("from", Instant.now().minus(since).toString())
-      .build())
-    .retrieve()
-    .bodyToFlux(ExamRecord.class);
+    /** Si quieres pasar un periodo (p. ej. PT720H): */
+    public Flux<ExamRecord> fetchExams(Duration since) {
+        Instant from = Instant.now().minus(since);
+        return client.get()
+            .uri(uri -> uri
+                .path("/recent-anomalies")
+                .queryParam("from", from.toString())
+                .build())
+            .retrieve()
+            .bodyToFlux(ExamRecord.class);
     }
 
+    /** Si ya pasas un Instant exacto: */
+    public Flux<ExamRecord> fetchExamsSince(Instant from) {
+        return client.get()
+            .uri(uri -> uri
+                .path("/recent-anomalies")
+                .queryParam("from", from.toString())
+                .build())
+            .retrieve()
+            .bodyToFlux(ExamRecord.class);
+    }
 }

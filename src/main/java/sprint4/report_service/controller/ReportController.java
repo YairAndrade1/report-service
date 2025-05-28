@@ -1,8 +1,13 @@
+// src/main/java/sprint4/report_service/controller/ReportController.java
 package sprint4.report_service.controller;
 
-import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.concurrent.TimeoutException;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,11 +29,19 @@ public class ReportController {
     }
 
     @GetMapping
-    public Mono<Report> getReport(@RequestParam(name="from", defaultValue="PT720h") String from) {
-        Duration period = Duration.parse(from);
-        return service.generateReport(period)
-            .timeout(Duration.ofSeconds(2))
+    public Mono<Report> getReport(
+        @RequestParam("from")
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        LocalDateTime from
+    ) {
+        Instant fromInstant = from.atZone(ZoneId.systemDefault()).toInstant();
+        return service.generateReport(fromInstant)
+            .timeout(java.time.Duration.ofSeconds(2))
             .onErrorMap(TimeoutException.class,
-                e -> new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT, "Timeout > 2s", e));
+                e -> new ResponseStatusException(
+                    HttpStatus.GATEWAY_TIMEOUT, "Timeout > 2s", e))
+            .onErrorMap(DateTimeParseException.class,
+                e -> new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Bad format for 'from'", e));
     }
 }
