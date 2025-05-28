@@ -23,28 +23,27 @@ public class ReportService {
     }
 
     public Mono<Report> generateReport(Duration period) {
-        Instant now = Instant.now();
-        Instant from = now.minus(period);
+    Instant now  = Instant.now();
+    Instant from = now.minus(period);
 
-        return examClient.fetchExams(period)
-            .filter(ExamRecord::isAnomaly)
-            .collectList()
-            .map(list -> {
-                Map<String, List<ExamRecord>> grouped =
-                    list.stream().collect(Collectors.groupingBy(ExamRecord::getExamType));
-
-                List<ReportEntry> entries = grouped.entrySet().stream()
-                    .map(e -> new ReportEntry(
-                        e.getKey(),
-                        e.getValue().size(),
-                        e.getValue().stream()
-                            .map(ExamRecord::getPatientId)
-                            .distinct()
-                            .collect(Collectors.toList())))
-                    .collect(Collectors.toList());
-
-                String periodStr = from + "_to_" + now;
-                return new Report(periodStr, "examType", entries);
-            });
+    return examClient.fetchExams(period)      // Llama al cliente
+        .filter(ExamRecord::isAnomaly)          // Solo anomalías
+        .collectList()
+        .map(list -> {
+        // Agrupa por tipo y extrae IDs únicos
+        Map<String, List<ExamRecord>> grouped = list.stream()
+            .collect(Collectors.groupingBy(ExamRecord::getExamType));
+        List<ReportEntry> entries = grouped.entrySet().stream()
+            .map(e -> new ReportEntry(
+                e.getKey(),
+                e.getValue().size(),
+                e.getValue().stream()
+                .map(ExamRecord::getPatientId)
+                .distinct()
+                .toList()))
+            .toList();
+        return new Report(from + "_to_" + now, "examType", entries);
+        });
     }
+
 }
