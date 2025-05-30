@@ -6,7 +6,6 @@ public class Report {
     private String period;
     private String groupBy;
     private List<ReportEntry> data;
-    // constructor, getters
 
     public Report(String period, String groupBy, List<ReportEntry> data) {
         this.period = period;

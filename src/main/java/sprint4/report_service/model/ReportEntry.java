@@ -7,7 +7,6 @@ public class ReportEntry {
     private long count;
     private List<Long> patientIds;
     
-    // constructor, getters
     public ReportEntry(String examType, long count, List<Long> patientIds) {
         this.examType = examType;
         this.count = count;

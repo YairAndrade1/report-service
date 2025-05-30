@@ -1,4 +1,3 @@
-// src/main/java/sprint4/report_service/controller/ReportController.java
 package sprint4.report_service.controller;
 
 import java.time.Instant;
@@ -36,10 +35,10 @@ public class ReportController {
     ) {
         Instant fromInstant = from.atZone(ZoneId.systemDefault()).toInstant();
         return service.generateReport(fromInstant)
-            .timeout(java.time.Duration.ofSeconds(2))
+            .timeout(java.time.Duration.ofSeconds(5))
             .onErrorMap(TimeoutException.class,
                 e -> new ResponseStatusException(
-                    HttpStatus.GATEWAY_TIMEOUT, "Timeout > 2s", e))
+                    HttpStatus.GATEWAY_TIMEOUT, "Timeout > 5s", e))
             .onErrorMap(DateTimeParseException.class,
                 e -> new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, "Bad format for 'from'", e));

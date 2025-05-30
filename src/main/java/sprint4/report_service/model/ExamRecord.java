@@ -7,7 +7,6 @@ public class ExamRecord {
     private String examType;
     private boolean anomaly;
     private Instant timestamp;
-    // getters y setters
 
     public Long getPatientId() {
         return patientId;

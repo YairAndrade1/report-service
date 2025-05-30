@@ -20,7 +20,6 @@ public class ExamClient {
             .build();
     }
 
-    /** Si quieres pasar un periodo (p. ej. PT720H): */
     public Flux<ExamRecord> fetchExams(Duration since) {
         Instant from = Instant.now().minus(since);
         return client.get()
@@ -32,7 +31,6 @@ public class ExamClient {
             .bodyToFlux(ExamRecord.class);
     }
 
-    /** Si ya pasas un Instant exacto: */
     public Flux<ExamRecord> fetchExamsSince(Instant from) {
         return client.get()
             .uri(uri -> uri
