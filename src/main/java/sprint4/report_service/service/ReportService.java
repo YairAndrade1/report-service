@@ -21,16 +21,35 @@ public class ReportService {
     public ReportService(ExamClient examClient) { this.examClient = examClient; }
 
     public Mono<Report> generateReport(Instant from) {
-        Instant now = Instant.now();
+    Instant now = Instant.now();
+    return examClient.fetchExamsSince(from)
+        .filter(ExamRecord::isAnomaly)
+        .collectList()
+        .map(list -> {
+            Map<String, List<ExamRecord>> grouped =
+                list.stream().collect(Collectors.groupingBy(ExamRecord::getExamType));
 
-        return examClient.fetchExamsSince(from)
-                         .filter(ExamRecord::isAnomaly)
-                         .collectList()
-                         .map(list -> buildReport(list, from, now));
-    }
+            List<ReportEntry> entries = grouped.entrySet().stream()
+                .map(e -> new ReportEntry(
+                    e.getKey(),
+                    e.getValue().size(),
+                    e.getValue().stream()                     // ← aquí
+                        .map(this::patientId)            // ID real o inventado
+                        .distinct()
+                        .collect(Collectors.toList())))
+                .collect(Collectors.toList());
+
+            return new Report(from + "_to_" + now, "examType", entries);
+        });
+}
 
     /* ----- helpers ----- */
 
+    private long patientId(ExamRecord r) {
+    // si viene null, fabricamos uno determinístico con el id del examen
+    return r.getPatientId() != null ? r.getPatientId()
+                                    : 10_000L + r.getId();   // <-- inventado
+    }
     private Report buildReport(List<ExamRecord> exams, Instant from, Instant to) {
 
         Map<String,List<ExamRecord>> grouped =
