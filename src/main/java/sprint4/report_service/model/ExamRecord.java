@@ -1,58 +1,42 @@
-// src/main/java/sprint4/report_service/model/ExamRecord.java
 package sprint4.report_service.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class ExamRecord {
-
-    @JsonProperty("id")
     private Long patientId;
-
-    @JsonProperty("tipo")
     private String examType;
-
-    /** Mapeamos aquí con LocalDateTime y especificamos el patrón de 6 decimales */
-    @JsonProperty("creadoEn")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
-    private LocalDateTime createdAt;
-
-    @JsonProperty("resultado")
-    private String resultado;
-
-    // getters y setters
+    private boolean anomaly;
+    private Instant timestamp;
 
     public Long getPatientId() {
         return patientId;
     }
+
     public void setPatientId(Long patientId) {
         this.patientId = patientId;
     }
+
     public String getExamType() {
         return examType;
     }
+
     public void setExamType(String examType) {
         this.examType = examType;
     }
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    public String getResultado() {
-        return resultado;
-    }
-    public void setResultado(String resultado) {
-        this.resultado = resultado;
-    }
 
     public boolean isAnomaly() {
-        return "anomaly".equalsIgnoreCase(this.resultado);
+        return anomaly;
+    }
+
+    public void setAnomaly(boolean anomaly) {
+        this.anomaly = anomaly;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Instant timestamp) {
+        this.timestamp = timestamp;
     }
 }
