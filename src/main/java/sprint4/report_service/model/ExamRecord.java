@@ -5,67 +5,53 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExamRecord {
 
-    /** El JSON trae "id", mapeamos a patientId */
     @JsonProperty("id")
     private Long patientId;
 
-    /** El JSON trae "tipo" */
     @JsonProperty("tipo")
     private String examType;
 
-    /** El JSON trae "creadoEn" con microsegundos sin zona */
+    /** Lo mapeo a LocalDateTime porque el JSON no trae zona */
     @JsonProperty("creadoEn")
-    @JsonFormat(shape = JsonFormat.Shape.STRING,
-                pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
-                timezone = "UTC")
-    private Instant timestamp;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+    private LocalDateTime createdAt;
 
-    /** El JSON trae "resultado" con valores "anomaly" o "normal" */
     @JsonProperty("resultado")
     private String resultado;
 
-    // getters / setters
+    // getters y setters
 
     public Long getPatientId() {
         return patientId;
     }
-
     public void setPatientId(Long patientId) {
         this.patientId = patientId;
     }
-
     public String getExamType() {
         return examType;
     }
-
     public void setExamType(String examType) {
         this.examType = examType;
     }
-
-    public Instant getTimestamp() {
-        return timestamp;
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
-
-    public void setTimestamp(Instant timestamp) {
-        this.timestamp = timestamp;
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
-
     public String getResultado() {
         return resultado;
     }
-
     public void setResultado(String resultado) {
         this.resultado = resultado;
     }
 
-    /**
-     * Sólo devuelve true si el resultado es "anomaly"
-     */
+    /** como antes, filtramos solo anomalías */
     public boolean isAnomaly() {
         return "anomaly".equalsIgnoreCase(this.resultado);
     }
