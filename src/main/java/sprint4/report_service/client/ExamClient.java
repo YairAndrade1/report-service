@@ -2,6 +2,7 @@ package sprint4.report_service.client;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneOffset;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,16 @@ public class ExamClient {
                 .queryParam("from", from.toString())
                 .build())
             .retrieve()
-            .bodyToFlux(ExamRecord.class);
-    }
+            .bodyToFlux(ExamRecord.class)
+            // Convertimos el LocalDateTime recibido en cada ExamRecord
+            .map(rec -> {
+                // timestamp ahora es LocalDateTime
+                Instant ts = rec.getTimestamp().toInstant(ZoneOffset.UTC);
+                // si quieres sobrescribir un campo instant, 
+                // añade un setter Instant en el model o extiende aquí
+                // por simplicidad, podrías adaptar tu ReportService:
+                // lo importante es que aquí ya no explode la deserialización.
+                return rec;
+            });
+        }
 }

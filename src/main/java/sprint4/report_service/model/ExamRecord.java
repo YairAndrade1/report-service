@@ -1,35 +1,25 @@
-// src/main/java/sprint4/report_service/model/ExamRecord.java
 package sprint4.report_service.model;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class ExamRecord {
-  @JsonProperty("id")
-  private Long patientId;
+    private Long patientId;
+    private String examType;
+    private boolean anomaly;
 
-  @JsonProperty("tipo")
-  private String examType;
+    // Cambiamos Instant por LocalDateTime
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
+    private LocalDateTime timestamp;
 
-  @JsonProperty("resultado")
-  private String resultado;
-
-  @JsonProperty("creadoEn")
-  private Instant timestamp;
-
-  public Long getPatientId() { return patientId; }
-  public String getExamType()   { return examType; }
-  public Instant getTimestamp() { return timestamp; }
-
-  public boolean isAnomaly() {
-    return resultado != null &&
-           resultado.toLowerCase().contains("anomaly");
-  }
-
-  // setters Jackson‐style...
-  public void setPatientId(Long patientId)   { this.patientId = patientId; }
-  public void setExamType(String examType)    { this.examType = examType; }
-  public void setResultado(String resultado)  { this.resultado = resultado; }
-  public void setTimestamp(Instant timestamp){ this.timestamp = timestamp; }
+    // getters y setters
+    public Long getPatientId() { return patientId; }
+    public void setPatientId(Long patientId) { this.patientId = patientId; }
+    public String getExamType() { return examType; }
+    public void setExamType(String examType) { this.examType = examType; }
+    public boolean isAnomaly() { return anomaly; }
+    public void setAnomaly(boolean anomaly) { this.anomaly = anomaly; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 }
