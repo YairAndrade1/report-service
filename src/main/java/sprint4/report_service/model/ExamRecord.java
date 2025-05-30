@@ -1,6 +1,7 @@
 package sprint4.report_service.model;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class ExamRecord {
@@ -8,11 +9,11 @@ public class ExamRecord {
     private String examType;
     private boolean anomaly;
 
-    /** Jackson usará este patrón para parsear “2025-05-23T02:31:52.039638” */
+    /** ahora es LocalDateTime, Jackson aplicará el patrón sin pedir “Z” */
     @JsonFormat(shape = JsonFormat.Shape.STRING,
                 pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
                 timezone = "UTC")
-    private Instant timestamp;
+    private LocalDateTime timestamp;
 
     // getters & setters...
 
@@ -37,10 +38,10 @@ public class ExamRecord {
         this.anomaly = anomaly;
     }
 
-    public Instant getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
-    public void setTimestamp(Instant timestamp) {
+    public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
     }
 }
