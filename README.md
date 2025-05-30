@@ -18,25 +18,21 @@ This microservice generates reports of patients’ exam anomalies over a given p
 ## 🚀 Despliegue
 
 1. **Clona** este repositorio y compílalo:
-   ```bash
    git clone https://github.com/tu‐usuario/report‐service.git
    cd report‐service
    mvn clean package -DskipTests
-````
 
 2. **Arranca** el servicio indicando el puerto y la URL del servicio de exámenes:
 
-   ```bash
    java -jar target/report-service-0.0.1-SNAPSHOT.jar \
      --server.port=8081 \
      --exam.service.url=http://<EXAM_VM_IP>:8080/examen
-   ```
+   
 3. Verifica que responde:
 
-   ```bash
    curl -G http://localhost:8081/reports \
         --data-urlencode "from=2025-01-01T00:00:00"
-   ```
+   
 
 ---
 
@@ -47,7 +43,7 @@ This microservice generates reports of patients’ exam anomalies over a given p
 * **from**: fecha/hora de inicio (ISO 8601).
 * **Respuesta**:
 
-  ```json
+ 
   {
     "period": "{from}_to_{now}",
     "groupBy": "examType",
@@ -60,7 +56,6 @@ This microservice generates reports of patients’ exam anomalies over a given p
       …
     ]
   }
-  ```
 
 ---
 
@@ -93,9 +88,7 @@ This microservice generates reports of patients’ exam anomalies over a given p
    * **Error %** = 0%
 6. (Opcional) **Linha de comando**:
 
-   ```bash
    jmeter -n -t report_test_plan.jmx -l report_results.jtl
-   ```
 
 ---
 
