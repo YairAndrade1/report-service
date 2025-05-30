@@ -3,16 +3,12 @@ package sprint4.report_service.controller;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeParseException;
-import java.util.concurrent.TimeoutException;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Mono;
 import sprint4.report_service.model.Report;
@@ -34,13 +30,6 @@ public class ReportController {
         LocalDateTime from
     ) {
         Instant fromInstant = from.atZone(ZoneId.systemDefault()).toInstant();
-        return service.generateReport(fromInstant)
-            .timeout(java.time.Duration.ofSeconds(5))
-            .onErrorMap(TimeoutException.class,
-                e -> new ResponseStatusException(
-                    HttpStatus.GATEWAY_TIMEOUT, "Timeout > 5s", e))
-            .onErrorMap(DateTimeParseException.class,
-                e -> new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST, "Bad format for 'from'", e));
+        return service.generateReport(fromInstant);
     }
 }
