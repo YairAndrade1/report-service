@@ -1,47 +1,35 @@
+// src/main/java/sprint4/report_service/model/ExamRecord.java
 package sprint4.report_service.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ExamRecord {
-    private Long patientId;
-    private String examType;
-    private boolean anomaly;
+  @JsonProperty("id")
+  private Long patientId;
 
-    /** ahora es LocalDateTime, Jackson aplicará el patrón sin pedir “Z” */
-    @JsonFormat(shape = JsonFormat.Shape.STRING,
-                pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS",
-                timezone = "UTC")
-    private LocalDateTime timestamp;
+  @JsonProperty("tipo")
+  private String examType;
 
-    // getters & setters...
+  @JsonProperty("resultado")
+  private String resultado;
 
-    public Long getPatientId() {
-        return patientId;
-    }
-    public void setPatientId(Long patientId) {
-        this.patientId = patientId;
-    }
+  @JsonProperty("creadoEn")
+  private Instant timestamp;
 
-    public String getExamType() {
-        return examType;
-    }
-    public void setExamType(String examType) {
-        this.examType = examType;
-    }
+  public Long getPatientId() { return patientId; }
+  public String getExamType()   { return examType; }
+  public Instant getTimestamp() { return timestamp; }
 
-    public boolean isAnomaly() {
-        return anomaly;
-    }
-    public void setAnomaly(boolean anomaly) {
-        this.anomaly = anomaly;
-    }
+  public boolean isAnomaly() {
+    return resultado != null &&
+           resultado.toLowerCase().contains("anomaly");
+  }
 
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+  // setters Jackson‐style...
+  public void setPatientId(Long patientId)   { this.patientId = patientId; }
+  public void setExamType(String examType)    { this.examType = examType; }
+  public void setResultado(String resultado)  { this.resultado = resultado; }
+  public void setTimestamp(Instant timestamp){ this.timestamp = timestamp; }
 }
