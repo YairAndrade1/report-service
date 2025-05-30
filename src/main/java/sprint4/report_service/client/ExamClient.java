@@ -32,23 +32,20 @@ public class ExamClient {
             .bodyToFlux(ExamRecord.class);
     }
 
-    public Flux<ExamRecord> fetchExamsSince(Instant from) {
-        return client.get()
-            .uri(uri -> uri
-                .path("/recent-anomalies")
-                .queryParam("from", from.toString())
-                .build())
-            .retrieve()
-            .bodyToFlux(ExamRecord.class)
-            // Convertimos el LocalDateTime recibido en cada ExamRecord
-            .map(rec -> {
-                // timestamp ahora es LocalDateTime
-                Instant ts = rec.getTimestamp().toInstant(ZoneOffset.UTC);
-                // si quieres sobrescribir un campo instant, 
-                // añade un setter Instant en el model o extiende aquí
-                // por simplicidad, podrías adaptar tu ReportService:
-                // lo importante es que aquí ya no explode la deserialización.
-                return rec;
-            });
-        }
+    public Flux<ExamRecord> fetchExamsSince(Instant fromInstant) {
+  return client.get()
+    .uri(uri -> uri
+      .path("/recent-anomalies")
+      .queryParam("from", fromInstant.toString())
+      .build())
+    .retrieve()
+    .bodyToFlux(ExamRecord.class)
+    // Convertimos el LocalDateTime al Instant UTC
+    .map(r -> {
+      Instant ts = r.getCreadoEn().toInstant(ZoneOffset.UTC);
+      // si quieres, almacenas ts en otro campo, o simplemente ya filtras con r.getCreadoEn()
+      return r;
+    });
+}
+
 }
