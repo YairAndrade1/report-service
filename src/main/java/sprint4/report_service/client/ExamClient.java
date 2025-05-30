@@ -1,8 +1,7 @@
+// src/main/java/sprint4/report_service/client/ExamClient.java
 package sprint4.report_service.client;
 
-import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -13,39 +12,22 @@ import sprint4.report_service.model.ExamRecord;
 
 @Component
 public class ExamClient {
+
     private final WebClient client;
 
     public ExamClient(@Value("${exam.service.url}") String baseUrl) {
         this.client = WebClient.builder()
-            .baseUrl(baseUrl)
-            .build();
+                               .baseUrl(baseUrl)
+                               .build();
     }
 
-    public Flux<ExamRecord> fetchExams(Duration since) {
-        Instant from = Instant.now().minus(since);
+    /** Llama  /recent-anomalies?from=…  con un Instant recibo desde el servicio */
+    public Flux<ExamRecord> fetchExamsSince(Instant from) {
         return client.get()
-            .uri(uri -> uri
-                .path("/recent-anomalies")
-                .queryParam("from", from.toString())
-                .build())
-            .retrieve()
-            .bodyToFlux(ExamRecord.class);
+                     .uri(uri -> uri.path("/recent-anomalies")
+                                    .queryParam("from", from.toString())
+                                    .build())
+                     .retrieve()
+                     .bodyToFlux(ExamRecord.class);
     }
-
-    public Flux<ExamRecord> fetchExamsSince(Instant fromInstant) {
-  return client.get()
-    .uri(uri -> uri
-      .path("/recent-anomalies")
-      .queryParam("from", fromInstant.toString())
-      .build())
-    .retrieve()
-    .bodyToFlux(ExamRecord.class)
-    // Convertimos el LocalDateTime al Instant UTC
-    .map(r -> {
-      Instant ts = r.getCreadoEn().toInstant(ZoneOffset.UTC);
-      // si quieres, almacenas ts en otro campo, o simplemente ya filtras con r.getCreadoEn()
-      return r;
-    });
-}
-
 }

@@ -16,33 +16,36 @@ import sprint4.report_service.model.ReportEntry;
 
 @Service
 public class ReportService {
-    private final ExamClient examClient;
 
-    public ReportService(ExamClient examClient) {
-        this.examClient = examClient;
-    }
+    private final ExamClient examClient;
+    public ReportService(ExamClient examClient) { this.examClient = examClient; }
 
     public Mono<Report> generateReport(Instant from) {
         Instant now = Instant.now();
+
         return examClient.fetchExamsSince(from)
-            .filter(ExamRecord::isAnomaly)
-            .collectList()
-            .map(list -> {
-                Map<String, List<ExamRecord>> grouped =
-                    list.stream().collect(Collectors.groupingBy(ExamRecord::getExamType));
+                         .filter(ExamRecord::isAnomaly)
+                         .collectList()
+                         .map(list -> buildReport(list, from, now));
+    }
 
-                List<ReportEntry> entries = grouped.entrySet().stream()
-                    .map(e -> new ReportEntry(
-                        e.getKey(),
-                        e.getValue().size(),
-                        e.getValue().stream()
-                            .map(ExamRecord::getPatientId)
-                            .distinct()
-                            .collect(Collectors.toList())))
-                    .collect(Collectors.toList());
+    /* ----- helpers ----- */
 
-                String periodStr = from + "_to_" + now;
-                return new Report(periodStr, "examType", entries);
-            });
+    private Report buildReport(List<ExamRecord> exams, Instant from, Instant to) {
+
+        Map<String,List<ExamRecord>> grouped =
+            exams.stream().collect(Collectors.groupingBy(ExamRecord::getExamType));
+
+        List<ReportEntry> entries = grouped.entrySet().stream()
+            .map(e -> new ReportEntry(
+                       e.getKey(),
+                       e.getValue().size(),
+                       e.getValue().stream()
+                                .map(ExamRecord::getPatientId)
+                                .distinct()
+                                .toList()))
+            .toList();
+
+        return new Report(from + "_to_" + to, "examType", entries);
     }
 }
