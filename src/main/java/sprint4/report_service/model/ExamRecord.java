@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExamRecord {
@@ -16,7 +17,7 @@ public class ExamRecord {
     @JsonProperty("tipo")
     private String examType;
 
-    /** Lo mapeo a LocalDateTime porque el JSON no trae zona */
+    /** Mapeamos aquí con LocalDateTime y especificamos el patrón de 6 decimales */
     @JsonProperty("creadoEn")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
     private LocalDateTime createdAt;
@@ -51,7 +52,6 @@ public class ExamRecord {
         this.resultado = resultado;
     }
 
-    /** como antes, filtramos solo anomalías */
     public boolean isAnomaly() {
         return "anomaly".equalsIgnoreCase(this.resultado);
     }
